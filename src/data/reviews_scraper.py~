@@ -1,0 +1,8 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+driver = webdriver.Chrome()
+driver.get("https://turbotax.intuit.com/reviews/?product=turbotax-online-federal-free-edition")
+review_texts = driver.find_elements_by_class_name("BVRRReviewText")
+for rt in review_texts:
+    print review_texts
