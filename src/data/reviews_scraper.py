@@ -58,7 +58,7 @@ def scrape_data():
             # # driver.implicitly_wait(5)
             # driver.execute_script("arguments[0].click();", button)
             button.click()
-            while out[-1]["text"] == data[-1]["text"]:
+            while out[-1]["text"] == data[-1]["text"] and out[-1]["title"] == data[-1]["title"] and out[-2]["text"] == data[-2]["text"] and out[-2]["title"] == data[-2]["title"] and out[-1]["pros"] == data[-1]["pros"] and out[-2]["rating"] == data[-2]["rating"]:
                 data = scrape_data_from_page(driver)
             # except:
             #     print("hi")
