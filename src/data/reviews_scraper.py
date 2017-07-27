@@ -44,11 +44,12 @@ def scrape_data_from_page(driver):
 def scrape_data():
     driver = webdriver.Chrome("../../selenium/chromedriver")
     mouse = webdriver.ActionChains(driver)
-    driver.get("https://turbotax.intuit.com/reviews/?product=turbotax-online-federal-free-edition")
+    driver.get("https://turbotax.intuit.com/reviews/")
     data_exists = True
     out = []
     i = 0
-    while data_exists and i < 1500:
+    # number of pages
+    while data_exists and i < 5480:
         try:
             data = scrape_data_from_page(driver)
             out.extend(data)
@@ -81,7 +82,7 @@ def test_scrape_data():
 
 def write_data_to_file():
     reviews = scrape_data()
-    with open("reviews.json", "w") as f:
+    with open("reviews_full.json", "w") as f:
         json.dump(reviews, f)
 
 if __name__ == "__main__":
