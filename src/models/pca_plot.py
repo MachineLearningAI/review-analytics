@@ -5,37 +5,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
-def review_len_analysis():
-
-    title_sum = pros_sum = cons_sum = text_sum = 0
-    count = 0
-
-    for i in range(1, 6):
-        valid_reviews = [i]
-        for review in reviews:
-            rating = int(review['rating'])
-            if (rating in valid_reviews):
-                title_sum += len(review['title'])
-                pros_sum += len(review['pros'])
-                cons_sum += len(review['cons'])
-                text_sum += len(review['text'])
-                count += 1
-
-        avg_title_len = str(title_sum / count)[:4]
-        avg_pros_len = str(pros_sum / count)[:4]
-        avg_cons_len = str(cons_sum / count)[:4]
-        avg_text_len = str(text_sum / count)[:4]
-
-        print("rating:", i, "count:", count, "avg_title_len:", avg_title_len, "avg_pros_len:", avg_pros_len, "avg_cons_len:", avg_cons_len, "avg_text_len:", avg_text_len)
-    print()
-
-reviews_array = []
-review_text = open('reviews.txt', 'r').read()    
+review_text = open('reviews.json', 'r').read()    
 reviews = eval(review_text)
 
 print(reviews[0], "\n")
-
-review_len_analysis()
 
 # create transcripts and ratings
 transcripts = []
