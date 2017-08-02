@@ -11,13 +11,14 @@ from time import time
 
 # the highest rating to consider reviews for
 # DO NOT MAKE MAX_ITER HIGH WHEN RATING_THRESHOLD IS 5
-RATING_THRESHOLD = 4
+RATING_THRESHOLD = 3
 METHOD_NAME = "lda"
-NUM_TOPICS = 5 # LDA
+NUM_TOPICS = 12 # LDA
 NUM_COMPONENTS = 2 # PCA
 LEARNING_DECAY = 0.7 # should be in the interval (0.5, 1.0]
 MAX_ITER = 20
 NUM_TOP_WORDS = 20
+NGRAM_RANGE = (2, 3)
 
 
 # http://scikit-learn.org/stable/auto_examples/applications/topics_extraction_with_nmf_lda.html
@@ -62,17 +63,23 @@ for review in reviews:
 # stop_words.extend(["tax", "taxes", "turbo", "turbotax"])
 
 # topics: 6, iter: 20
+# topics: 5, iter: 20
+# topics: 5, iter: 20, ngram_range=(2, 3)
 # stop_words = stopwords.words("english")
 # stop_words.extend(["tax", "taxes", "turbo", "turbotax", "easy"])
 
-# topics: 5, iter: 20
+# topics: 5, iter: 20, ngram_range=(2, 3)
+# topics: 4, iter: 20, ngram_range=(2, 3)
 stop_words = stopwords.words("english")
 stop_words.extend(["tax", "taxes", "turbo", "turbotax", "easy"])
+stop_words.remove("not")
+stop_words.remove("no")
 
+print("Number of topics: ", NUM_TOPICS)
+print("Number of iteration: ", MAX_ITER)
+print("N-gram range: ", NGRAM_RANGE)
 
-
-
-vectorizers = [TfidfVectorizer(stop_words=stop_words, ngram_range=(1, 3))]
+vectorizers = [TfidfVectorizer(stop_words=stop_words, ngram_range=NGRAM_RANGE)]
 colors = ['red', 'orange', 'yellow', 'green', 'blue']
 
 for vectorizer in vectorizers:
