@@ -3,11 +3,11 @@ import csv
 if __name__ == "__main__":
 
     #Declare constants
-	OPTIONS = ["advertising", "fees", "return rejected", "poor/no customer service", "free ver. watered down", "poor explanations", "forced to mail", "too long"9, "complete"]
+	OPTIONS = ["advertising", "fees", "return rejected", "poor/no customer service", "free ver. watered down", "poor explanations", "forced to mail", "too long", "complete"]
 	OPTION_STR = " ".join([str(j + 1) + " - " + option + ", " for (j, option) in enumerate(OPTIONS)])[:-1]
 
 	with open('labeled_reviews.csv', 'r+') as review_file:	
-		reader = csv.reader(review_file, delimiter=',')
+		reader = csv.reader(review_file, delimiter='|')
 		last_word = None
 		for row in reader:
 			for word in row:
@@ -36,14 +36,14 @@ if __name__ == "__main__":
 			labels = [0 for j in range(len(OPTIONS))]
 			complete = False
 			while not complete:
-				print("OPTIONS: (" + str(labels) + ")\n", OPTION_STR)
+				print("OPTIONS: " + str(labels) + "\n", OPTION_STR)
 				option_num = int(input())
 				labels[option_num - 1] = 1
 				complete = OPTIONS[option_num - 1] == "complete"
 
 			print("\n")
 
-			labeled_review = ",".join([transcript] + [str(label) for label in labels] + [str(start_index)])
+			labeled_review = "|".join([transcript] + [str(label) for label in labels] + [str(start_index)])
 
 			review_file.write(labeled_review + "\n")
 
