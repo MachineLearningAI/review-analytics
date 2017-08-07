@@ -19,6 +19,7 @@ for review in reviews:
     # if review['rating'] in ['1', '2', '3']:
     review_cons = ' '.join(review['cons'])
     parsed_reviews.append(review['title'] + ' '+ review['text'] + ' ' + review_cons)
+    print(review['title'] + ' '+ review['text'] + ' ' + review_cons)
 
 
 # parsed_reviews = parsed_reviews[:200]
