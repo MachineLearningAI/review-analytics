@@ -20,8 +20,6 @@ for review in reviews:
         review_cons = ' '.join(review['cons'])
         parsed_reviews.append(review['title'] + ' '+ review['text'] + ' ' + review_cons)
 
-
-# parsed_reviews = parsed_reviews[:200]
 vectorizer = CountVectorizer()
 doc_matrix = np.array(vectorizer.fit_transform(parsed_reviews).toarray())
 
