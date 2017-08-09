@@ -43,12 +43,5 @@ for year in years:
 
 	reviews.append(year_reviews)
 
-with open('all_reviews.json', 'w') as reviews_file:
+with open('unlabeled_reviews.json', 'w') as reviews_file:
 	json.dump(reviews, reviews_file)
-
-
-
-
-
-
-

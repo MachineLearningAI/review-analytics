@@ -1,12 +1,12 @@
 
-depth = 10
+depth = 150
 
 text = open('all_reviews.json', 'r').read()
 reviews = eval(text)
 
 print(type(reviews))
 
-for i in range(3):
+for i in range(1):
 	year_reviews = reviews[i]
 
 	if i == 0:
@@ -16,9 +16,9 @@ for i in range(3):
 	elif i == 2:
 		print("\n\nTY16 ----------------------- \n\n")
 
-	for i in range(depth):
-		review = year_reviews[i]
+	for j in range(depth):
+		review = year_reviews[j]
 		transcript = review['Review Title'] + ' '
 		transcript += review['Review Text'] +' '
 		transcript += review['Cons']
-		print(transcript)
+		print(transcript+"\n")
