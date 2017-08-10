@@ -11,8 +11,8 @@ LABELS = ['Fees', 'Ads', 'Rejected/missing returns', 'Hard to navigate',
         'Lacking carryover information', 'State form issue', 'Poor explanations',
         'Other countries support issue', 'Print/export problems', 'eFiling',
         'Other', 'None']
-NUM_PASSES_PER_FILTER = 3
-FILTER_SIZES = [2, 3, 5]
+NUM_PASSES_PER_FILTER = 100
+FILTER_SIZES = [3, 4, 5]
 x_train = []
 y_train = []
 x_dev = []
