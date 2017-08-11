@@ -33,7 +33,7 @@ def print_top_words(model, feature_names, n_top_words):
 
 
 reviews_array = []
-review_text = open('reviews.jsone', 'r').read()
+review_text = open('reviews.json', 'r').read()
 reviews = eval(review_text)
 
 # create transcripts and ratings

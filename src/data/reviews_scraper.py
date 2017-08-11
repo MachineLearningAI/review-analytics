@@ -50,39 +50,39 @@ def scrape_data_from_page(driver):
         #     review["date"] = date_el.find_elements_by_class_name("BVRRReviewDate")[0].text
         # except:
         #     review["date"] = "DATE"
-        try:
-            contextdata_el = user_el.find_element_by_class_name("BVRRContextDataContainer")
-            review["married"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueMarried")[0].text
-            # print(review["married"])
-            review["home"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueHome")[0].text
-            # print(review["home"])
-            review["kids"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueKids")[0].text
-            # print(review["kids"])
-            review["business"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueBusiness")[0].text
-            # print(review["business"])
-            review["school"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueSchool")[0].text
-            # print(review["school"])
-            review["language"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueLanguage")[0].text
-            # print(review["language"])
-        except:
-            review["married"] = ""
-            review["home"] = ""
-            review["kids"] = ""
-            review["business"] = ""
-            review["school"] = ""
-            review["language"] = ""
+        # try:
+        #     contextdata_el = user_el.find_element_by_class_name("BVRRContextDataContainer")
+        #     review["married"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueMarried")[0].text
+        #     # print(review["married"])
+        #     review["home"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueHome")[0].text
+        #     # print(review["home"])
+        #     review["kids"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueKids")[0].text
+        #     # print(review["kids"])
+        #     review["business"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueBusiness")[0].text
+        #     # print(review["business"])
+        #     review["school"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueSchool")[0].text
+        #     # print(review["school"])
+        #     review["language"] = contextdata_el.find_elements_by_class_name("BVRRContextDataValueLanguage")[0].text
+        #     # print(review["language"])
+        # except:
+        #     review["married"] = ""
+        #     review["home"] = ""
+        #     review["kids"] = ""
+        #     review["business"] = ""
+        #     review["school"] = ""
+        #     review["language"] = ""
         out.append(review)
     return out
 
 def scrape_data():
     driver = webdriver.Chrome("../../selenium/chromedriver")
     mouse = webdriver.ActionChains(driver)
-    driver.get("https://turbotax.intuit.com/reviews/")
+    driver.get("https://turbotax.intuit.com/reviews/?product=turbotax-online-premier")
     data_exists = True
     out = []
     i = 0
     # number of pages
-    while data_exists and i < 5400:
+    while data_exists and i < 480:
         try:
             data = scrape_data_from_page(driver)
             out.extend(data)
@@ -94,6 +94,7 @@ def scrape_data():
             button.click()
             while out[-1]["text"] == data[-1]["text"] and out[-1]["title"] == data[-1]["title"] and out[-2]["text"] == data[-2]["text"] and out[-2]["title"] == data[-2]["title"] and out[-1]["pros"] == data[-1]["pros"] and out[-2]["rating"] == data[-2]["rating"]:
                 data = scrape_data_from_page(driver)
+                driver.implicitly_wait(1)
             # except:
             #     # print("hi")
             #     data_exists = False
@@ -115,7 +116,7 @@ def test_scrape_data():
 
 def write_data_to_file():
     reviews = scrape_data()
-    with open("reviews_full.json", "w") as f:
+    with open("reviews_online_premier.json", "w") as f:
         json.dump(reviews, f)
 
 if __name__ == "__main__":
