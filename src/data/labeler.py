@@ -2,13 +2,15 @@ import csv
 
 if __name__ == "__main__":
 
-	YEAR = 14 # UPDATE THIS ACCORDINGLY
+	YEAR = 16 # UPDATE THIS ACCORDINGLY
 
-	OPTIONS = ["Fees", "Ads", "Missing/Rejected", "Customer Service", "State", "Carryover", "eFile", "UI/UX", "Explanations", "Foreign", "Print/Export", "Other", "No Complaint", "complete"]
+	OPTIONS = ["Fees", "Ads", "Missing/Rejected", "Customer Service", "State", "Carryover", "eFile", "UI/UX/Form Err", "Explanations", "Foreign", "Print/Export", "Other", "No Complaint", "complete"]
 	OPTION_KEYS = ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Enter"]
 	OPTION_STR = " ".join([OPTION_KEYS[j] + ": " + option + ", " for (j, option) in enumerate(OPTIONS)])[:-1]
 
 	file_name = 'labeled_reviews_' + str(YEAR) + '.csv'
+
+	print(file_name)
 
 	with open(file_name, 'r+') as review_file:	
 		reader = csv.reader(review_file, delimiter='|')
@@ -20,7 +22,7 @@ if __name__ == "__main__":
 		if last_word == None:
 			start_index = 0
 		else:
-			start_index = int(last_word)
+			start_index = int(last_word) + 1
 
 		reviews = eval(open('unlabeled_reviews.json', 'r').read())
 		reviews = reviews[YEAR - 14]
