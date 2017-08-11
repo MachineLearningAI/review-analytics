@@ -10,18 +10,19 @@ if __name__ == "__main__":
 
 	file_name = 'labeled_reviews_' + str(YEAR) + '.csv'
 
-	with open(file_name, 'r+') as review_file:	
+	with open(file_name, 'r+') as review_file:
 		reader = csv.reader(review_file, delimiter='|')
 		last_word = None
 		for row in reader:
 			for word in row:
 				last_word = word
-	
+
 		if last_word == None:
 			start_index = 0
 		else:
 			start_index = int(last_word)
 
+		start_index = int(last_word) + 1
 		reviews = eval(open('unlabeled_reviews.json', 'r').read())
 		reviews = reviews[YEAR - 14]
 
