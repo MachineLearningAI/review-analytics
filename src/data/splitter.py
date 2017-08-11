@@ -1,13 +1,14 @@
 import csv
-
+import re
 
 def get_data_from_labeled(tax_year):
     data = []
     file_name = "labeled_reviews_" + tax_year + ".csv"
     with open(file_name) as f:
         content = f.read()
-        tokens = content.split("|")
 
+        tokens = content.split("|")
+        asdfjkl = re.findall(r"[\w|]+", content)
         counts = [0 for i in range(20)]
         freq = [0 for i in range(14)]
         for i in range(len(tokens)):
@@ -35,4 +36,5 @@ def get_data_from_labeled(tax_year):
                 print("err")
     print("Frequencies of reviews with X # of complaints:", counts)
     print("Frequencies of reviews with X label complaint:", freq)
+    print("Vocab size (estimate):", len(set(asdfjkl)))
     return data
