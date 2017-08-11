@@ -1,2 +1,1 @@
-advertising
-additional fees
+["Fees", "Ads", "Missing/Rejected", "Customer Service", "State", "Carryover", "eFile", "UI/UX", "Explanations", "Foreign", "Print/Export", "Other", "No Complaint",
