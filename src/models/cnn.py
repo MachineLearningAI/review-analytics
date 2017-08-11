@@ -3,10 +3,11 @@ import numpy as np
 import os
 import time
 import datetime
+import gensim.models.KeyedVectors.load_word2vec_format as load_w2v
 
 MAX_REVIEW_LENGTH = 10
 NUM_WORDS = 100
-EMBEDDING_SIZE = 100
+EMBEDDING_SIZE = 300
 LABELS = ['Fees', 'Ads', 'Rejected/missing returns', 'Hard to navigate',
         'Lacking carryover information', 'State form issue', 'Poor explanations',
         'Other countries support issue', 'Print/export problems', 'eFiling',
@@ -26,7 +27,7 @@ class CNN(object):
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout") # Disable during evaluation.
 
         with tf.device('/cpu:0'), tf.name_scope("embedding"):
-            self.embedding_matrix = tf.Variable(tf.random_uniform([num_words, embedding_length], -1.0, 1.0), name="embedding_matrix")
+            self.embedding_matrix = tf.Variable(tf.random_uniform([num_words, embedding_length], -1.0, 1.0), name="embedding_matrix") # Replaced with w2v
             self.embedded_chars = tf.nn.embedding_lookup(self.embedding_matrix, self.x) # num reviews x max sentence length x embedding length
             self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1) # embedded_chars x 1
 
@@ -89,6 +90,9 @@ tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on 
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
 
+#TODO: Read data from file and have list of words in order. would be great to preprocess into text file.
+vocab = []
+
 # Training
 with tf.Graph().as_default():
     session_conf = tf.ConfigProto(
@@ -130,13 +134,21 @@ with tf.Graph().as_default():
 
         sess.run(tf.global_variables_initializer())
 
+        # Replacing random init with word2vec embeddings
+        init_embedding_matrix = np.random.uniform(-1, 1, (NUM_WORDS, EMBEDDING_SIZE))
+        model = load_w2v('~/Desktop/GoogleNews-vectors-negative300.bin', binary=True)
+        for i in range(len(vocab)):
+            if vocab[i] in model.wv:
+                init_embedding_matrix[i] = model.wv[vocab[i]]
+        sess.run(cnn.embedding_matrix.assign(init_embedding_matrix))
+
         def train_step(x_batch, y_batch):
             """
             A single training step
             """
             feed_dict = {
-              cnn.input_x: x_batch,
-              cnn.input_y: y_batch,
+              cnn.x: x_batch,
+              cnn.y: y_batch,
               cnn.dropout_keep_prob: 0.5
             }
             _, step, summaries, loss, accuracy = sess.run(
@@ -151,8 +163,8 @@ with tf.Graph().as_default():
             Evaluates model on a dev set
             """
             feed_dict = {
-              cnn.input_x: x_batch,
-              cnn.input_y: y_batch,
+              cnn.x: x_batch,
+              cnn.y: y_batch,
               cnn.dropout_keep_prob: 1.0
             }
             step, summaries, loss, accuracy = sess.run(
