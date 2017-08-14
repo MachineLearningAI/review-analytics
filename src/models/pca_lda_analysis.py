@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
+import re
+
 from time import time
 
 # the highest rating to consider reviews for
