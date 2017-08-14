@@ -13,7 +13,7 @@ def get_data_from_labeled(tax_year):
         counts = [0 for i in range(20)]
         freq = [0 for i in range(14)]
         for i in range(len(tokens)):
-            print(i, tokens[i])
+            #print(i, tokens[i])
             if i % 17 == 0:
                 vector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 rating = int(tokens[i][-2])
@@ -30,8 +30,8 @@ def get_data_from_labeled(tax_year):
                         v = [0 for k in range(len(vector))]
                         v[j] = 1
                         data.append([rating, text, ID, v])
-                        print([rating, text, ID, v])
-                print("---------------------")
+                        #print([rating, text, ID, v])
+                #print("---------------------")
                 freq = [i + j for (i, j) in zip(freq, vector)]
                 condensed_data.append([rating, text, ID, vector])
             else:

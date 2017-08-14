@@ -25,6 +25,11 @@ input_x = []
 input_y = []
 vocab = set()
 MAX_REVIEW_LENGTH = 10
+REVIEW_LENGTH_THRESHOLD = 2500
+
+old_len = len(data)
+data = [review for review in data if len(review['text']) < REVIEW_LENGTH_THRESHOLD]
+print("Num of Reviews Removed: " + str(old_len - len(data)))
 
 for review in data:
     words = review['text'].split()

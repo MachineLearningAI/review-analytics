@@ -10,13 +10,9 @@ if __name__ == "__main__":
 
 	file_name = 'labeled_reviews_' + str(YEAR) + '.csv'
 
-<<<<<<< HEAD
 	print(file_name)
 
-	with open(file_name, 'r+') as review_file:	
-=======
 	with open(file_name, 'r+') as review_file:
->>>>>>> c8b07adeba3b213fd0e089e38d42a0f557ecd6c7
 		reader = csv.reader(review_file, delimiter='|')
 		last_word = None
 		for row in reader:
