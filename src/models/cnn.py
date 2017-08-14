@@ -61,7 +61,7 @@ class CNN(object):
 
         # Calculating average cross-entropy loss.
         with tf.name_scope("loss"):
-            losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.y)
+            losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.scores, labels=self.y)
             self.loss = tf.reduce_mean(losses)
 
         # Calculating average accuracy.

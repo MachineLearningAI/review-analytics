@@ -37,4 +37,5 @@ def get_data_from_labeled(tax_year):
     print("Frequencies of reviews with X # of complaints:", counts)
     print("Frequencies of reviews with X label complaint:", freq)
     print("Vocab size (estimate):", len(set(asdfjkl)))
-    return data
+#    return data
+
