@@ -3,7 +3,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from math import sqrt
 from cnn_utils import get_all_labeled_data
-from nltk.corpus import stopwords
 from stop_words import get_stop_words
 
 def find(list, i):
@@ -18,15 +17,10 @@ words_2 = ["to", "the", "and", "it", "was", "for", "my", "is", "of", "that", "yo
 words_3 = ["just", "much", "many", "up", "using", "used", "some", "always", "every", "years", "are", "really", "what", "than", "doing", "going"]
 stop_words = words_1 + words_2 + words_3
 
-stop_words = stopwords.words("english")
-stop_words.extend(["tax", "taxes", "turbo", "turbotax", "easy"])
-stop_words.remove("not")
-stop_words.remove("no")
-
 # grab data
-all_data = get_all_labeled_data()['data']
+#all_data = get_all_labeled_data()['data']
+all_data = get_all_labeled_data()['condensed_data']
 random.shuffle(all_data)
-##all_data += get_all_labeled_data()['condensed_data']
 
 # preprocess data
 texts = []
@@ -45,8 +39,13 @@ y_train = labels[:index]
 X_test = vectorizer.transform(texts	[index:]).toarray()
 y_test = labels	[index:]
 
+for i in range(len(X_train)):
+	elem = X_train[i]
+	
+
+
 # create random forest
-n_estimators = 10
+n_estimators = 15
 forest = RandomForestClassifier(n_estimators = n_estimators)
 forest.fit(X_train, y_train)
 
@@ -57,7 +56,7 @@ for i in range(len(predicts)):
 	predict = predicts[i].tolist()
 	actual = y_test[i]
 	index = find(predict, 1)
-	#print(predict)
+	# print(predict)
 	if index != -1:
 		if actual[index] == 1:
 			correct += 1
