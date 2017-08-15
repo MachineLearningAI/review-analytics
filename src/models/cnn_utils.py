@@ -11,7 +11,7 @@ def get_data_from_labeled(tax_year):
 
         for i in range(len(tokens)):
             if i % 17 == 0:
-                vector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                vector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                 rating = int(tokens[i][-2])
             elif i % 17 == 1:
                 text = tokens[i].strip()

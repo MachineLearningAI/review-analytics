@@ -1,39 +1,74 @@
-import random
-import utils
+import random, re, sys
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn import linear_model
 from math import sqrt
+from cnn_utils import get_all_labeled_data
+from nltk.corpus import stopwords
+from stop_words import get_stop_words
 
-def rf_model():
-    percent_training = .70 # proportion of data to use for training
+def find(list, i):
+	try:
+		return list.index(i)
+	except:
+		return -1
 
-    reviews = get_reviews()
+# stopwords
+words_1 = get_stop_words('en')
+words_2 = ["to", "the", "and", "it", "was", "for", "my", "is", "of", "that", "you", "me", "in", "as", "do", "with", "at", "be", "your", "on", "this", "its", "use", "but", "all", "have", "there", "had", "so", "or", "if", "will", "way", "can", "get", "which", "did", "very", "don", "too", "an", "been", "when", "didn", "would", "ve", "they", "year", "out", "from", "by", "how", "am"]
+words_3 = ["just", "much", "many", "up", "using", "used", "some", "always", "every", "years", "are", "really", "what", "than", "doing", "going"]
+stop_words = words_1 + words_2 + words_3
 
-    # shuffle and split reviews
-    random.shuffle(reviews)
-    training_set = reviews[:int(percent_training * len(reviews))]
-    testing_set = reviews[int(percent_training * len(reviews)):]
-    training_labels = [row[0] for row in training_set]
-    training_data = [row[1] for row in training_set]
-    testing_data = [row[1] for row in testing_set]
+stop_words = stopwords.words("english")
+stop_words.extend(["tax", "taxes", "turbo", "turbotax", "easy"])
+stop_words.remove("not")
+stop_words.remove("no")
 
-    # tf-idf vectorize training set
-    vectorizer = TfidfVectorizer()
-    X = vectorizer.fit_transform(training_data)
-    X = X.toarray()
+# grab data
+all_data = get_all_labeled_data()['data']
+random.shuffle(all_data)
+##all_data += get_all_labeled_data()['condensed_data']
 
-    # tf-idf vectorize testing set
-    vectorized_testing_data = [vectorizer.transform([review]) for review in testing_data]
-    total = len(vectorized_testing_data)
+# preprocess data
+texts = []
+labels = []
+for data in all_data:
+	text = re.sub(r'[^\w\s]','', data['text'].lower())
+	texts.append(text)
+	labels.append(data['labels'])
 
-    # create random forest
-    forest = RandomForestClassifier(n_estimators = int(sqrt(len(X[0])))+1)
-    forest.fit(X, training_labels)
+# split reviews
+percent_training = .9
+index = int(len(texts) * percent_training)
+vectorizer = TfidfVectorizer(stop_words=stop_words)
+X_train = vectorizer.fit_transform(texts[:index]).toarray()
+y_train = labels[:index]
+X_test = vectorizer.transform(texts	[index:]).toarray()
+y_test = labels	[index:]
 
-    # generate and return predictions
-    tagged_reviews = []
-    for i in range(total):
-        tagged_reviews.append([forest.predict(vectorized_testing_data[i])[0], testing_data[i]])
+# create random forest
+n_estimators = 10
+forest = RandomForestClassifier(n_estimators = n_estimators)
+forest.fit(X_train, y_train)
 
-    return tagged_reviews
+# predict and score model
+predicts = forest.predict(X_test)
+correct = 0
+for i in range(len(predicts)):
+	predict = predicts[i].tolist()
+	actual = y_test[i]
+	index = find(predict, 1)
+	#print(predict)
+	if index != -1:
+		if actual[index] == 1:
+			correct += 1
+	else:
+		all_zero = True
+		for elem in actual:
+			if elem != 0:
+				all_zero = False
+				break
+		if all_zero:
+			correct += 1
+
+accuracy = correct / len(X_test)
+print(n_estimators, ":", "accuracy:", accuracy)
