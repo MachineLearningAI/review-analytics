@@ -31,15 +31,16 @@ def get_data_from_labeled(tax_year):
                 merged_vector[7] = vector[9] # Foreign
                 merged_vector[8] = vector[10] # Print/Export
                 merged_vector[9] = vector[11] # Other
+                if len(text.split()) < 620 :
+                    for j in range(len(merged_vector)):
+                        if merged_vector[j] == 1:
+                            v = [0 for k in range(len(merged_vector))]
+                            v[j] = 1
+                            datum = {"rating": rating, "text": text, "ID": ID, "labels": v}
+                            data.append(datum)
+                    condensed_datum = {"rating": rating, "text": text, "ID": ID, "labels": merged_vector}
+                    condensed_data.append(condensed_datum)
 
-                for j in range(len(merged_vector)):
-                    if merged_vector[j] == 1:
-                        v = [0 for k in range(len(merged_vector))]
-                        v[j] = 1
-                        datum = {"rating": rating, "text": text, "ID": ID, "labels": v}
-                        data.append(datum)
-                condensed_datum = {"rating": rating, "text": text, "ID": ID, "labels": merged_vector}
-                condensed_data.append(condensed_datum)
 
 
     return {"data": data, "condensed_data": condensed_data}

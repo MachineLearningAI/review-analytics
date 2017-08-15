@@ -57,7 +57,7 @@ class CNN(object):
                 initializer=tf.contrib.layers.xavier_initializer())
             b = tf.Variable(tf.constant(0.1, shape=[num_labels]), name="b")
             self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
-            self.predictions = tf.argmax(self.scores, 1, name="predictions")
+            self.predictions = tf.nn.sigmoid(self.scores)
 
         # Calculating average cross-entropy loss.
         with tf.name_scope("loss"):
@@ -66,5 +66,9 @@ class CNN(object):
 
         # Calculating average accuracy.
         with tf.name_scope("accuracy"):
-            correct_predictions = tf.equal(self.predictions, tf.argmax(self.y, 1)) # Boolean array.
-            self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
+            # correct_predictions = tf.equal(self.predictions, tf.argmax(self.y, 1)) # Boolean array.
+            # self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
+            # correct_predictions = tf.equal(tf.round(self.predictions), self.y)
+            # self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, tf.float32), name="accuracy")
+            correct_predictions = tf.reduce_max(tf.multiply(tf.round(self.predictions), self.y), 1)
+            self.accuracy = tf.reduce_mean(correct_predictions, name="accuracy")
