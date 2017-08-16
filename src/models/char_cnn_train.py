@@ -8,15 +8,13 @@ import tensorflow as tf
 import numpy as np
 from random import shuffle
 import string
-from nltk.corpus import stopwords
-import nltk
 
 TABLE = str.maketrans({key: None for key in string.punctuation})
-EMBEDDING_SIZE = 300
+EMBEDDING_SIZE = 100
 BATCH_SIZE = 50
 LABELS = ["Fees/Ads", "Missing/Rejected/eFile", "Customer Service", "State", "Carryover", "UI/UX/Form Error", "Explanations", "Foreign", "Print/Export", "Other"]
-NUM_PASSES_PER_FILTER = 300
-FILTER_SIZES = [2, 3, 4, 5]
+NUM_PASSES_PER_FILTER = 256
+FILTER_SIZES = [2, 3, 5, 8]
 
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
@@ -31,21 +29,12 @@ input_y = []
 vocab = set()
 MAX_REVIEW_LENGTH = 0
 
-# nltk.download() # run this the first time
-words_1 = stopwords.words('english')
-words_2 = ["to", "the", "and", "it", "was", "for", "my", "is", "of", "that", "you", "me", "in", "as", "do", "with", "at", "be", "your",
-"on", "this", "its", "use", "but", "all", "have", "there", "had", "so", "or", "if", "will", "way", "can", "get", "which", "did", "very", "don", "too", "an", "been", "when", "didn",
-"would", "ve", "they", "year", "out", "from", "by", "how", "am"]
-words_3 = ["just", "much", "many", "up", "using", "used", "some", "always", "every", "years", "are", "really", "what", "than", "doing", "going"]
-stop_words = set(words_1 + words_2 + words_3)
-
 for review in data:
-    words = review['text'].lower().translate(TABLE).split()
-    words = [word for word in words if word not in stop_words]
-    if len(words) > MAX_REVIEW_LENGTH:
-        MAX_REVIEW_LENGTH = len(words)
-    for word in words:
-        vocab.add(word)
+    chars = list(review['text'].lower().translate(TABLE))
+    if len(chars) > MAX_REVIEW_LENGTH:
+        MAX_REVIEW_LENGTH = len(chars)
+    for symbol in chars:
+        vocab.add(symbol)
 
 
 print("Longest Review: " + str(MAX_REVIEW_LENGTH))
@@ -54,23 +43,16 @@ vocab.append("<PAD>")
 NUM_WORDS = len(vocab)
 print("Vocab Size: " + str(NUM_WORDS))
 
-init_embedding_matrix = np.random.uniform(-1, 1, (NUM_WORDS, EMBEDDING_SIZE))
-model = KeyedVectors.load_word2vec_format('~/Desktop/GoogleNews-vectors-negative300.bin', binary=True)
 lookup_table = {}
 for i in range(len(vocab)):
     lookup_table[vocab[i]] = i
-    if vocab[i] in model.wv:
-        init_embedding_matrix[i] = model.wv[vocab[i]]
-
-print("Finished word2vec init")
 
 for review in data:
-    words = review['text'].lower().translate(TABLE).split()
-    words = [word for word in words if word not in stop_words]
+    chars = list(review['text'].lower().translate(TABLE))
     encoding = []
-    for word in words:
-        encoding.append(lookup_table[word])
-    for _ in range(MAX_REVIEW_LENGTH - len(words)):
+    for symbol in chars:
+        encoding.append(lookup_table[symbol])
+    for _ in range(MAX_REVIEW_LENGTH - len(chars)):
         encoding.append(lookup_table["<PAD>"])
     input_x.append(encoding)
     input_y.append(review['labels'])
@@ -132,9 +114,6 @@ with tf.Graph().as_default():
         dev_summary_writer = tf.summary.FileWriter(dev_summary_dir, sess.graph)
 
         sess.run(tf.global_variables_initializer())
-
-        # Replacing random init with word2vec embeddings
-        sess.run(cnn.embedding_matrix.assign(init_embedding_matrix))
 
         def train_step(x_batch, y_batch):
             """
