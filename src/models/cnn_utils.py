@@ -11,7 +11,7 @@ def get_data_from_labeled(tax_year):
 
         for i in range(len(tokens)):
             if i % 17 == 0:
-                vector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+                vector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 rating = int(tokens[i][-2])
             elif i % 17 == 1:
                 text = tokens[i].strip()
@@ -31,7 +31,7 @@ def get_data_from_labeled(tax_year):
                 merged_vector[7] = vector[9] # Foreign
                 merged_vector[8] = vector[10] # Print/Export
                 merged_vector[9] = vector[11] # Other
-                if len(text.split()) < 620 :
+                if len(text) < 2500 :
                     for j in range(len(merged_vector)):
                         if merged_vector[j] == 1:
                             v = [0 for k in range(len(merged_vector))]
