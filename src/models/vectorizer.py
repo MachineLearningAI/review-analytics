@@ -14,5 +14,5 @@ def keywords_vec(text):
 def keywords_vec_from_list(l):
 	vs = []
 	for text in l:
-		vs.append(keywords_vec[text])
+		vs.append(keywords_vec(text))
 	return vs
