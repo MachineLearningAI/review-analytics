@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from math import sqrt
 from cnn_utils import get_all_labeled_data
 from stop_words import get_stop_words
-from vectorizer import keywords_vec_from_list
+from vectorizer import keywords_vec
 
 def max_index(a):
 	max_index = -1
@@ -41,10 +41,22 @@ for data in all_data:
 percent_training = .90
 index = int(len(texts) * percent_training)
 vectorizer = CountVectorizer(stop_words=stop_words)
-X_train = vectorizer.fit_transform(texts[:index]).toarray().tolist() + keywords_vec_from_list(texts[:index])
+X_train = vectorizer.fit_transform(texts[:index]).toarray().tolist()
+for i in range(len(X_train)):
+	keywords = keywords_vec(texts[:index][i])
+	X_train[i] += keywords
+	#print(X_train[i])
+	#print(keywords)
+	#sys.exit()
 y_train = labels[:index]
-X_test = vectorizer.transform(texts[index:]).toarray().tolist() + keywords_vec_from_list(texts[:index])
-y_test = labels	[index:]
+
+X_test = vectorizer.transform(texts[index:]).toarray().tolist()
+for i in range(len(X_test)):
+	keywords = keywords_vec(texts[index:][i])
+	X_test[i] += keywords
+y_test = labels[index:]
+
+print("COMPLETED")
 
 vocab = {}
 for word in vectorizer.vocabulary_:
@@ -76,16 +88,16 @@ n_estimators = 12
 forest = RandomForestRegressor(n_estimators = n_estimators, criterion='mse')
 forest.fit(X_train, y_train)
 
-key_words = []
-for i in range(len(forest.feature_importances_)):
-	gini_impurity = forest.feature_importances_[i]
-	word = vocab[i]
-	key_words.append([word, float(gini_impurity)])
+# key_words = []
+# for i in range(len(forest.feature_importances_)):
+# 	gini_impurity = forest.feature_importances_[i]
+# 	word = vocab[i]
+# 	key_words.append([word, float(gini_impurity)])
 
-key_words = sorted(key_words, key=lambda key_word: -key_word[1])
-print(key_words[:40])
-for word in key_words[:40]:
-	print(word[0])
+# key_words = sorted(key_words, key=lambda key_word: -key_word[1])
+# print(key_words[:40])
+# for word in key_words[:40]:
+# 	print(word[0])
 
 
 # print(forest.feature_importances_.tolist())
