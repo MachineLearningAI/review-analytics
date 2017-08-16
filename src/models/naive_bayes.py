@@ -1,19 +1,9 @@
 import random, re, sys, string
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.naive_bayes import GaussianNB
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from math import sqrt
 from cnn_utils import get_all_labeled_data
 from stop_words import get_stop_words
-
-def max_index(a):
-	max_index = -1
-	max = -1
-	for i in range(len(a)):
-		elem = a[i]
-		if elem > max:
-			max = elem
-			max_index = i
-	return max_index
 
 # stopwords
 words_1 = get_stop_words('en')
@@ -22,33 +12,34 @@ words_3 = ["just", "much", "many", "up", "using", "used", "some", "always", "eve
 stop_words = words_1 + words_2 + words_3
 
 # grab data
-#all_data = get_all_labeled_data()['data']
-all_data = get_all_labeled_data()['condensed_data']
+all_data = get_all_labeled_data()['data']
+all_data_condensed = get_all_labeled_data()['condensed_data']
+condensed_data_map = {}
+for data in all_data_condensed:
+	condensed_data_map[data['ID']] = data['labels']
 random.shuffle(all_data)
 
 # preprocess data
 texts = []
 labels = []
+IDs = []
 TABLE = str.maketrans({key: None for key in string.punctuation})
 for data in all_data:
-	# text = re.sub(r'[^\w\s]','', data['text'].lower())
 	text = data['text'].lower().translate(TABLE)
 	texts.append(text)
-	labels.append(data['labels'])
+	labels.append(data['labels'].index(1))
+	IDs.append(data['ID'])
 
-# split reviews
+# split reviews 
 percent_training = .90
 index = int(len(texts) * percent_training)
-vectorizer = CountVectorizer(stop_words=stop_words)
+vectorizer = TfidfVectorizer(stop_words=stop_words)
 X_train = vectorizer.fit_transform(texts[:index]).toarray().tolist()
 y_train = labels[:index]
-X_test = vectorizer.transform(texts[index:]).toarray().tolist()
-y_test = labels	[index:]
-
-vocab = {}
-for word in vectorizer.vocabulary_:
-	index = vectorizer.vocabulary_[word]
-	vocab[index] = word
+ID_train = IDs[:index]
+X_test = vectorizer.transform(texts	[index:]).toarray().tolist()
+y_test = labels[index:]
+ID_test = IDs[index:]
 
 try:
 	for i in range(len(X_train)):
@@ -70,45 +61,23 @@ try:
 except:
 	pass
 
-# create random forest
-n_estimators = 12
-forest = RandomForestRegressor(n_estimators = n_estimators, criterion='mse')
-forest.fit(X_train, y_train)
-
-key_words = []
-for i in range(len(forest.feature_importances_)):
-	gini_impurity = forest.feature_importances_[i]
-	word = vocab[i]
-	key_words.append([word, float(gini_impurity)])
-
-key_words = sorted(key_words, key=lambda key_word: -key_word[1])
-print(key_words[:40])
-for word in key_words[:40]:
-	print(word[0])
-
-
-# print(forest.feature_importances_.tolist())
+# create and fit naive bayes
+nb = GaussianNB()
+nb.fit(X_train, y_train)
 
 # predict and score model
-predicts = forest.predict(X_test)
+predicts = nb.predict(X_test)
 correct = 0
 for i in range(len(predicts)):
-	predict = predicts[i].tolist()
-	actual = y_test[i]
-	index = max_index(predict)
-	# print(predict)
-	if index != -1:
-		if actual[index] == 1:
-			correct += 1
-	else:
-		all_zero = True
-		for elem in actual:
-			if elem != 0:
-				all_zero = False
+	predict = predicts[i]
+	ID = ID_test[i]
+	actual_vector = condensed_data_map[ID]
+	for j in range(len(actual_vector)):
+		elem = actual_vector[j]
+		if elem == 1:
+			if j == predict:
+				correct += 1
 				break
-		if all_zero:
-			correct += 1
-	#print(predict, actual)
 
 accuracy = correct / len(X_test)
-print(n_estimators, ":", "accuracy:", accuracy)
+print("accuracy:", accuracy)
