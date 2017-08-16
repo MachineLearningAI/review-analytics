@@ -6,13 +6,16 @@ import numpy as np
 # Code adapted from http://www.wildml.com/2015/12/implementing-a-cnn-for-text-classification-in-tensorflow/
 
 class CNN(object):
-    def __init__(self, max_review_length, num_labels, num_words, embedding_length, filter_sizes, num_passes_per_filter):
+    def __init__(self, max_review_length, num_labels, num_words, embedding_length, filter_sizes, num_passes_per_filter, using_chars):
         self.x = tf.placeholder(tf.int32, [None, max_review_length], name="x")
         self.y = tf.placeholder(tf.float32, [None, num_labels], name="y")
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout") # Disable during evaluation.
 
         with tf.device('/cpu:0'), tf.name_scope("embedding"):
-            self.embedding_matrix = tf.Variable(tf.random_uniform([num_words, embedding_length], -1.0, 1.0), name="embedding_matrix") # Replaced with w2v
+            if using_chars:
+                self.embedding_matrix = tf.Variable(tf.eye(num_words), name="embedding_matrix", trainable=False)
+            else:
+                self.embedding_matrix = tf.Variable(tf.random_uniform([num_words, embedding_length], -1.0, 1.0), name="embedding_matrix") # Replaced with w2v
             self.embedded_chars = tf.nn.embedding_lookup(self.embedding_matrix, self.x) # num reviews x max sentence length x embedding length
             self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1) # embedded_chars x 1
 
