@@ -105,7 +105,8 @@ with tf.Graph().as_default():
             num_words=NUM_WORDS,
             embedding_length=EMBEDDING_SIZE,
             filter_sizes=FILTER_SIZES,
-            num_passes_per_filter=NUM_PASSES_PER_FILTER)
+            num_passes_per_filter=NUM_PASSES_PER_FILTER,
+            using_chars=False)
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-6)

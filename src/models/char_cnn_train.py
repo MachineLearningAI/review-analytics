@@ -10,7 +10,6 @@ from random import shuffle
 import string
 
 TABLE = str.maketrans({key: None for key in string.punctuation})
-EMBEDDING_SIZE = 100
 BATCH_SIZE = 50
 LABELS = ["Fees/Ads", "Missing/Rejected/eFile", "Customer Service", "State", "Carryover", "UI/UX/Form Error", "Explanations", "Foreign", "Print/Export", "Other"]
 NUM_PASSES_PER_FILTER = 256
@@ -40,8 +39,9 @@ for review in data:
 print("Longest Review: " + str(MAX_REVIEW_LENGTH))
 vocab = list(vocab)
 vocab.append("<PAD>")
-NUM_WORDS = len(vocab)
-print("Vocab Size: " + str(NUM_WORDS))
+NUM_CHARS = len(vocab)
+EMBEDDING_SIZE = len(vocab)
+print("Symbol Vocab Size: " + str(NUM_CHARS))
 
 lookup_table = {}
 for i in range(len(vocab)):
@@ -84,10 +84,11 @@ with tf.Graph().as_default():
         cnn = CNN(
             max_review_length=MAX_REVIEW_LENGTH,
             num_labels=len(LABELS),
-            num_words=NUM_WORDS,
+            num_words=NUM_CHARS,
             embedding_length=EMBEDDING_SIZE,
             filter_sizes=FILTER_SIZES,
-            num_passes_per_filter=NUM_PASSES_PER_FILTER)
+            num_passes_per_filter=NUM_PASSES_PER_FILTER,
+            using_chars=True)
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-6)
