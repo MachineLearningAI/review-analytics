@@ -9,3 +9,10 @@ def keywords_vec(text):
 		else:
 			v.append(0)	
 	return v
+
+# input list of strings
+def keywords_vec_from_list(l):
+	vs = []
+	for text in l:
+		vs.append(keywords_vec[text])
+	return vs

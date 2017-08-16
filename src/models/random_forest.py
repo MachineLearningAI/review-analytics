@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from math import sqrt
 from cnn_utils import get_all_labeled_data
 from stop_words import get_stop_words
+from vectorizer import keywords_vec
 
 def max_index(a):
 	max_index = -1
@@ -40,7 +41,7 @@ for data in all_data:
 percent_training = .90
 index = int(len(texts) * percent_training)
 vectorizer = CountVectorizer(stop_words=stop_words)
-X_train = vectorizer.fit_transform(texts[:index]).toarray().tolist()
+X_train = vectorizer.fit_transform(texts[:index]).toarray().tolist() + keyword_vec(texts[:index])
 y_train = labels[:index]
 X_test = vectorizer.transform(texts[index:]).toarray().tolist()
 y_test = labels	[index:]
