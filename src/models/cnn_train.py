@@ -3,7 +3,7 @@ import time
 import datetime
 from gensim.models.keyedvectors import KeyedVectors
 from cnn import CNN
-from cnn_utils import get_all_labeled_data
+from nn_utils import get_all_labeled_data
 import tensorflow as tf
 import numpy as np
 from random import shuffle

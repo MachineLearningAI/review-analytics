@@ -1,93 +1,70 @@
-from __future__ import print_function
-
-import tensorflow as tf
-from tensorflow.contrib import rnn
-
-import numpy as np
-import collections
-import json
+import numpy
 import random
+from keras.datasets import imdb
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers import Dropout
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
+from keras.utils import to_categorical
+import nn_utils
+import re, string
+# fix random seed for reproducibility
+numpy.random.seed(7)
 
-def build_dataset(words):
-    count = collections.Counter(words).most_common()
-    dictionary = dict()
-    for word, _ in count:
-        dictionary[word] = len(dictionary)
-    reverse_dictionary = dict(zip(dictionary.values(), dictionary.keys()))
-    return dictionary, reverse_dictionary
+# split data into training data and test data
+all_data = nn_utils.get_all_labeled_data()
+data = all_data["data"]
 
-def RNN(x, weights, biases):
-    # reshape to [1, n_input]
-    x = tf.reshape(x, [-1, n_input])
+reviews = []
+labels = []
+for review in data:
+    word_list = review["text"].split()
+    for item in word_list:
+        exclude = set(string.punctuation)
+        item = ''.join(ch for ch in item if ch not in exclude)
+    reviews.append(word_list)
 
-    x = tf.split(x, n_input, 1)
-    rnn_cell = rnn.BasicLSTMCell(n_hidden)
-
-    outputs, states = rnn.static_rnn(rnn_cell, x, dtype=tf.float32)
-
-    return tf.matmul(outputs[-1], weights["out"]) + biases["out"]
+    labels.append(review["labels"])
 
 
-logs_path = 'rnn_words'
-write = tf.summary.FileWriter(logs_path)
+flat_list = [item for sublist in reviews for item in sublist]
+num_to_word = dict((k, v) for (k, v) in enumerate(set(flat_list)))
+word_to_num = dict((v, k) for (k, v) in enumerate(set(flat_list)))
 
-with open("../data/unlabeled_reviews.json", "r") as reviews_file:
-    reviews = eval(reviews_file.read())
 
-transcripts = [(review["text"] + " " + review["title"]).strip() for review in reviews]
-# transcripts = [transcripts[i].split() for i in range(len(transcripts))]
-transcripts = np.array(transcripts)
-transcripts = np.reshape(transcripts, [-1, ])
-# print(transcripts[0])
-dictionary, reverse = build_dataset(transcripts)
+X_train = []
+y_train = []
+X_test = []
+y_test = []
 
-vocab_size = len(dictionary)
+for review, label in zip(reviews, labels):
+    if random.randint(0, 5) > 1:
+        X_train.append([word_to_num[item] for item in review])
+        # y_train.append(label.index(1))
+        y_train.append(label)
+    else:
+        X_test.append([word_to_num[item] for item in review])
+        # y_test.append(label.index(1))
+        y_test.append(label)
 
-# # Parameters
-# n_input = 3
-# n_hidden = 512
-# learning_rate = 0.001
-# training_iters = 50000
-# display_step = 1000
+max_review_length = max([len(X) for X in X_train])
+X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
+X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
+# y_train = to_categorical(y_train, nb_classes=10)
+# y_test = to_categorical(y_train, nb_classes=10)
+embedding_vector_length = 32
+model = Sequential()
+model.add(Embedding(len(flat_list), embedding_vector_length, input_length=max_review_length))
+model.add(Dropout(0.2))
+model.add(LSTM(100))
+model.add(Dropout(0.2))
+model.add(Dense(10, activation="softmax"))
+model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+print(model.summary())
+model.fit(X_train, y_train, epochs=3, batch_size=64)
 
-# weights = {
-#     "out": tf.Variable(tf.random_normal([n_hidden, vocab_size]))
-# }
-
-# biases = {
-#     "out": tf.Variable(tf.random_normal([vocab_size]))
-# }
-
-# x = tf.placeholder("float", [None, n_input, 1])
-# y = tf.placeholder("float", [None, vocab_size])
-
-# pred = RNN(x, weights, biases)
-
-# cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-# optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate).minimize(cost)
-
-# correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
-# accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-
-# init = tf.global_variables_initializer()
-
-# with tf.Session() as sess:
-#     sess.run(init)
-#     step = 0
-#     offset = random.randint(0, n_input + 1)
-#     end_offset = n_input + 1
-#     acc_total = 0
-#     loss_total = 0
-
-#     writer.add_graph(session.graph)
-
-#     while step < training_iters:
-#         if offset > (len(training_data) - end_offset):
-#             offset = random.randint(0, n_input + 1)
-
-#         symbols_in_keys = [ [dictionary[ str(training_data[i])]] for i in range(offset, offset+n_input) ]
-#         symbols_in_keys = np.reshape(np.array(symbols_in_keys), [-1, n_input, 1])
-
-#         symbols_out_onehot = np.zeros([vocab_size], dtype=float)
-#         symbols_out_onehot[dictionary[str(training_data[offset+n_input])]] = 1.0
-#         symbols_out_onehot = np.reshape(symbols_out_onehot,[1,-1])
+# Final evaluation of the model
+scores = model.evaluate(X_test, y_test, verbose=0)
+print("Accuracy: %.2f%%" % (scores[1]*100))
