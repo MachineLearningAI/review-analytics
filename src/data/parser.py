@@ -9,7 +9,7 @@ valid_attributes = ['Review ID', 'Submission Date', 'Initial Publish Data', 'Use
 					'Pros', 'Cons', 'Life Changes (Tags)', 'Review Text', '# of Helpful\nVotes', 
 					'# of Not Helpful\nVotes', 'Business', 'Home', 'Kids', 'Language', 'Married',
 					'Prior Tax Prep Method', 'Student']
-years = [14, 15, 16]
+years = [11, 12, 13, 14, 15, 16]
 
 for year in years:
 	file_name = "TY" + str(year) + ".csv"
@@ -43,5 +43,5 @@ for year in years:
 
 	reviews.append(year_reviews)
 
-with open('unlabeled_reviews.json', 'w') as reviews_file:
+with open('all_years_unlabeled_reviews.json', 'w') as reviews_file:
 	json.dump(reviews, reviews_file)

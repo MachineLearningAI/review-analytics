@@ -56,8 +56,6 @@ for i in range(len(X_test)):
 	X_test[i] += keywords
 y_test = labels[index:]
 
-print("COMPLETED")
-
 vocab = {}
 for word in vectorizer.vocabulary_:
 	index = vectorizer.vocabulary_[word]
@@ -84,7 +82,7 @@ except:
 	pass
 
 # create random forest
-n_estimators = 12
+n_estimators = 10
 forest = RandomForestRegressor(n_estimators = n_estimators, criterion='mse')
 forest.fit(X_train, y_train)
 
