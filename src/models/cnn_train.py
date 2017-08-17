@@ -10,6 +10,9 @@ from random import shuffle
 import string
 from nltk.corpus import stopwords
 import nltk
+from vectorizer import keywords_vec_from_list
+
+# CNN-static model from https://arxiv.org/pdf/1408.5882.pdf
 
 TABLE = str.maketrans({key: None for key in string.punctuation})
 EMBEDDING_SIZE = 300
@@ -17,13 +20,17 @@ BATCH_SIZE = 50
 LABELS = ["Fees/Ads", "Missing/Rejected/eFile", "Customer Service", "State", "Carryover", "UI/UX/Form Error", "Explanations", "Foreign", "Print/Export", "Other"]
 NUM_PASSES_PER_FILTER = 300
 FILTER_SIZES = [2, 3, 4, 5]
+KEYWORDS = ['free', 'fees', 'expensive', 'efile', 'state', 'rejected', 'charged', 'price', 'charge', 'help', 'phone', 'cost', 'support', 'pay', 'call', 'print', 'filed', 'upgrade', 'return',
+	'returns', 'customer', 'refund', 'service', 'turbotax', 'information', 'info', 'form', 'like', 'late', 'forms', 'explanations', 'explanation', 'find', 'software']
 
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
 
-all_data = get_all_labeled_data()
+# Parsing Data
+
+all_data = get_all_labeled_data(use_chars=False)
 data = all_data['condensed_data']
 print("Data Size: " + str(len(data)))
 input_x = []
@@ -62,6 +69,7 @@ for i in range(len(vocab)):
     if vocab[i] in model.wv:
         init_embedding_matrix[i] = model.wv[vocab[i]]
 
+init_embedding_matrix = np.hstack((init_embedding_matrix, keywords_vec_from_list(vocab)))
 print("Finished word2vec init")
 
 for review in data:
@@ -103,10 +111,10 @@ with tf.Graph().as_default():
             max_review_length=MAX_REVIEW_LENGTH,
             num_labels=len(LABELS),
             num_words=NUM_WORDS,
-            embedding_length=EMBEDDING_SIZE,
+            embedding_length=EMBEDDING_SIZE + len(KEYWORDS),
             filter_sizes=FILTER_SIZES,
             num_passes_per_filter=NUM_PASSES_PER_FILTER,
-            using_chars=False)
+            use_chars=False)
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-6)

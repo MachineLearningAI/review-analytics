@@ -9,6 +9,9 @@ import numpy as np
 from random import shuffle
 import string
 
+# Implementing https://arxiv.org/pdf/1509.01626.pdf
+
+# Hyperparameters
 TABLE = str.maketrans({key: None for key in string.punctuation})
 BATCH_SIZE = 50
 LABELS = ["Fees/Ads", "Missing/Rejected/eFile", "Customer Service", "State", "Carryover", "UI/UX/Form Error", "Explanations", "Foreign", "Print/Export", "Other"]
@@ -20,7 +23,9 @@ tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on 
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
 
-all_data = get_all_labeled_data()
+# Parsing Data
+
+all_data = get_all_labeled_data(use_chars=True)
 data = all_data['condensed_data']
 print("Data Size: " + str(len(data)))
 input_x = []
@@ -39,6 +44,7 @@ for review in data:
 print("Longest Review: " + str(MAX_REVIEW_LENGTH))
 vocab = list(vocab)
 vocab.append("<PAD>")
+
 NUM_CHARS = len(vocab)
 EMBEDDING_SIZE = len(vocab)
 print("Symbol Vocab Size: " + str(NUM_CHARS))
@@ -88,7 +94,7 @@ with tf.Graph().as_default():
             embedding_length=EMBEDDING_SIZE,
             filter_sizes=FILTER_SIZES,
             num_passes_per_filter=NUM_PASSES_PER_FILTER,
-            using_chars=True)
+            use_chars=True)
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-6)

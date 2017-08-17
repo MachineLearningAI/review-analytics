@@ -1,18 +1,17 @@
 import tensorflow as tf
 import numpy as np
 
-# CNN-static model from https://arxiv.org/pdf/1408.5882.pdf
 # No L2 Regularization because of results from https://arxiv.org/pdf/1510.03820.pdf
 # Code adapted from http://www.wildml.com/2015/12/implementing-a-cnn-for-text-classification-in-tensorflow/
 
 class CNN(object):
-    def __init__(self, max_review_length, num_labels, num_words, embedding_length, filter_sizes, num_passes_per_filter, using_chars):
+    def __init__(self, max_review_length, num_labels, num_words, embedding_length, filter_sizes, num_passes_per_filter, use_chars):
         self.x = tf.placeholder(tf.int32, [None, max_review_length], name="x")
         self.y = tf.placeholder(tf.float32, [None, num_labels], name="y")
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout") # Disable during evaluation.
 
         with tf.device('/cpu:0'), tf.name_scope("embedding"):
-            if using_chars:
+            if use_chars:
                 self.embedding_matrix = tf.Variable(tf.eye(num_words), name="embedding_matrix", trainable=False)
             else:
                 self.embedding_matrix = tf.Variable(tf.random_uniform([num_words, embedding_length], -1.0, 1.0), name="embedding_matrix") # Replaced with w2v
@@ -69,9 +68,5 @@ class CNN(object):
 
         # Calculating average accuracy.
         with tf.name_scope("accuracy"):
-            # correct_predictions = tf.equal(self.predictions, tf.argmax(self.y, 1)) # Boolean array.
-            # self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
-            # correct_predictions = tf.equal(tf.round(self.predictions), self.y)
-            # self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, tf.float32), name="accuracy")
-            correct_predictions = tf.reduce_max(tf.multiply(tf.round(self.predictions), self.y), 1)
+            correct_predictions = tf.reduce_max(tf.multiply(tf.round(self.predictions - 0.16), self.y), 1)
             self.accuracy = tf.reduce_mean(correct_predictions, name="accuracy")

@@ -1,7 +1,7 @@
 import csv
 import re
 
-def get_data_from_labeled(tax_year):
+def get_data_from_labeled(tax_year, use_chars):
     data = []
     condensed_data = []
     file_name = "../data/labeled_reviews_" + str(tax_year) + ".csv"
@@ -31,7 +31,12 @@ def get_data_from_labeled(tax_year):
                 merged_vector[7] = vector[9] # Foreign
                 merged_vector[8] = vector[10] # Print/Export
                 merged_vector[9] = vector[11] # Other
-                if len(text) < 2500 :
+                condition = None # Filtering out reviews that are length outliers
+                if use_chars:
+                    condition = len(text) < 2500
+                else:
+                    condition = len(text.split()) < 620
+                if condition:
                     for j in range(len(merged_vector)):
                         if merged_vector[j] == 1:
                             v = [0 for k in range(len(merged_vector))]
@@ -41,15 +46,13 @@ def get_data_from_labeled(tax_year):
                     condensed_datum = {"rating": rating, "text": text, "ID": ID, "labels": merged_vector}
                     condensed_data.append(condensed_datum)
 
-
-
     return {"data": data, "condensed_data": condensed_data}
 
 
-def get_all_labeled_data():
-    ty14 = get_data_from_labeled(14)
-    ty15 = get_data_from_labeled(15)
-    ty16 = get_data_from_labeled(16)
+def get_all_labeled_data(use_chars):
+    ty14 = get_data_from_labeled(14, use_chars)
+    ty15 = get_data_from_labeled(15, use_chars)
+    ty16 = get_data_from_labeled(16, use_chars)
     data = ty14["data"] + ty15["data"] + ty16["data"]
     condensed_data = ty14["condensed_data"] + ty15["condensed_data"] + ty16["condensed_data"]
     return {"data": data, "condensed_data": condensed_data}
