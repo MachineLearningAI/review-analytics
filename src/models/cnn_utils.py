@@ -1,6 +1,18 @@
 import csv
 import re
 
+def get_text_and_email_from_id(id):
+    reviews = eval(open('../data/unlabeled_reviews.json', 'r').read())[0]
+    for review in reviews:
+        if review['Review ID'] == str(id):
+            transcript = ""
+            transcript += review['Review Title'] + ' '
+            transcript += review['Review Text'] + ' '
+            transcript += review['Cons']
+            return transcript, review['User Email Address']
+
+
+
 def get_data_from_labeled(tax_year, use_chars):
     data = []
     condensed_data = []

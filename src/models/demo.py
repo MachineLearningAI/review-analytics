@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from math import sqrt
 from cnn_utils import get_all_labeled_data
+from cnn_utils import get_text_and_email_from_id
 from nltk.corpus import stopwords
 from vectorizer import keywords_vec
 import numpy as np
@@ -89,3 +90,23 @@ def classify_review():
             if prediction[i] != 0:
                 review_labels += (labels[i] + " ")
         print(review_labels)
+
+
+def generate_email_lists():
+    labels = ["Fees/Ads", "Missing/Rejected/eFile", "Customer Service", "State", "Carryover", "UI/UX/Form Error", "Explanations", "Foreign", "Print/Export", "Other"]
+    print("Training...")
+    reviews, vectorizer, model = train()
+    while True:
+        user_input = input("Enter review ID: ")
+        review_text, email = get_text_and_email_from_id(user_input)
+        if review_text:
+            vectorized = vectorizer.transform([review_text])
+            keyworded = np.append(vectorized.toarray(), np.array(keywords_vec(review_text)))
+            prediction = model.predict(keyworded.reshape(1, -1)).reshape(-1, 1)
+            output = email + ': '
+            for i in range(len(prediction)):
+                if prediction[i] != 0:
+                    output += (labels[i] + " ")
+            print(output)
+        else:
+            print("ERROR: ID not found")
