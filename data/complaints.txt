@@ -1,0 +1,12 @@
+COMPLAINTS
+
+"Fees/Ads", 
+"Missing/Rejected/eFile", 
+"Customer Service", 
+"State", 
+"Carryover", 
+"UI/UX/Form Error", 
+"Explanations", 
+"Foreign", 
+"Print/Export", 
+"Other"
